@@ -32,14 +32,14 @@ function get_taobao_item_id($url){
 
 /**
  * 下载淘宝页面
- * @param unknown $id
- * @return mixed
+ * @param url $url
+ * @return string
  */
-function download_taobao_page($id) {
+function download_page($url) {
     // 创建一个新cURL资源
     $ch = curl_init();
     // 设置URL和相应的选项
-    curl_setopt($ch, CURLOPT_URL, 'http://item.taobao.com/item.htm?id='.$id);
+    curl_setopt($ch, CURLOPT_URL, $url);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
     curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
     curl_setopt($ch, CURLOPT_REFERER, "http://www.taobao.com/");
@@ -60,7 +60,7 @@ function download_taobao_page($id) {
  */
 function get_taobao_comment_url($id){
 
-    $pages = download_taobao_page($id);
+    $pages = download_page('http://item.taobao.com/item.htm?id='.$id);
 
     preg_match_all('/data-listApi="(.*)"/Usi', $pages, $commont);//评论列表地址
 
@@ -106,7 +106,7 @@ function get_comment_list($url, $maxPage=5) {
             $url = preg_replace('/PageNum=(\d+)&/','PageNum='.$i.'&', $url);
 
             //抓取评论
-            $product_comment_list = file_get_contents($url, true);
+            $product_comment_list = download_page($url);
             $product_comment_list = iconv('gbk','utf-8//IGNORE', $product_comment_list);
             preg_match('#\((.*?)\)#U', $product_comment_list, $comment_list_matchs);
             $content = json_decode($comment_list_matchs[1], true);
@@ -139,7 +139,7 @@ function get_comment_list($url, $maxPage=5) {
             $url = preg_replace('/currentPage=(\d+)&/','currentPage='.$i.'&', $url);
 
             //抓取评论
-            $product_comment_list = file_get_contents($url, true);
+            $product_comment_list = download_page($url);
 
             $product_comment_list = iconv('gbk','utf-8//IGNORE', $product_comment_list);
             preg_match('#\((.*?)\)#U', $product_comment_list, $comment_list_matchs);
